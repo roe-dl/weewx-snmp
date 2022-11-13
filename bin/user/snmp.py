@@ -352,6 +352,7 @@ class SNMPservice(StdService):
                 print('----------')
             # init database
             binding = config_dict['SNMP'].get('data_binding','snmp_binding')
+            if binding in ('None','none'): binding = None
             if binding:
                 binding_found = 'DataBindings' in config_dict.sections and binding in config_dict['DataBindings']
             else:
