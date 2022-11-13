@@ -112,6 +112,27 @@ SYSOBS = [{'oid':('SNMPv2-MIB', 'sysDescr', 0),'name':'sysDescr'},
         {'oid':('SNMPv2-MIB', 'sysServices', 0),'name':'sysServices'},
         {'oid':('SNMPv2-MIB', 'sysORLastChange', 0),'name':'sysORLastChange'}]
 
+##############################################################################
+#    Database schema                                                         #
+##############################################################################
+
+exclude_from_summary = ['dateTime', 'usUnits', 'interval']
+
+table = [('dateTime',             'INTEGER NOT NULL UNIQUE PRIMARY KEY'),
+         ('usUnits',              'INTEGER NOT NULL'),
+         ('interval',             'INTEGER NOT NULL')] 
+
+def day_summaries():
+    return [(e[0], 'scalar') for e in table
+                 if e[0] not in exclude_from_summary and e[1]=='REAL'] 
+
+schema = {
+    'table': table,
+    'day_summaries' : day_summaries()
+}
+
+##############################################################################
+
 # PyAsn1Error
 # PySnmpError
  
@@ -200,6 +221,7 @@ class SNMPthread(threading.Thread):
     
         if __name__ == '__main__':
             print()
+            print('-----',self.name,'-----',ot,'-----')
 
         iterator = getCmd(
             SnmpEngine(),
@@ -308,6 +330,7 @@ class SNMPservice(StdService):
             self.log_success = True
             self.log_failure = True
         self.threads = dict()
+        self.dbm = None
         if 'SNMP' in config_dict:
             ct = 0
             for name in config_dict['SNMP'].sections:
@@ -319,7 +342,22 @@ class SNMPservice(StdService):
             if ct>0 and __name__!='__main__':
                 self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
                 self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
-                
+            # init schema
+            schema = {
+                'table':table,
+                'day_summaries':day_summaries()}
+            if __name__=='__main__':
+                print('----------')
+                print(schema)
+                print('----------')
+            # init database
+            binding = config_dict['SNMP'].get('data_binding','snmp_binding')
+            if binding:
+                binding_found = 'DataBindings' in config_dict.sections and binding in config_dict['DataBindings']
+            else:
+                binding_found = None
+            self.dbm_init(engine,binding,binding_found)
+
     def _create_thread(self, thread_name, thread_dict):
         host = thread_dict.get('host')
         query_interval = thread_dict.get('query_interval',1)
@@ -337,6 +375,7 @@ class SNMPservice(StdService):
             obstype = thread_dict['loop'][ii].get('name')
             obsunit = thread_dict['loop'][ii].get('unit')
             obsgroup = thread_dict['loop'][ii].get('group')
+            obsdatatype = 'REAL'
             if not obsgroup and obsunit:
                 # if no unit group is given, try to find out
                 for jj in weewx.units.MetricUnits:
@@ -350,17 +389,23 @@ class SNMPservice(StdService):
                             break
             if obstype and obsgroup:
                 weewx.units.obs_group_dict.setdefault(obstype,obsgroup)
+                table.append((obstype,obsdatatype))
         # start thread
         self.threads[thread_name]['thread'].start()
         return True
         
     def shutDown(self):
+        """ shutdown threads and close database """
         for ii in self.threads:
             try:
                 self.threads[ii]['thread'].shutDown()
             except Exception:
                 pass
-
+        try:
+            self.dbm_close()
+        except Exception:
+            pass
+        
     def _process_data(self, thread_name):
         # get collected data
         data = None
@@ -388,9 +433,12 @@ class SNMPservice(StdService):
                     logdbg("PACKET %s:%s" % (thread_name,data))
                 # update loop packet with device data
                 event.packet.update(data)
-        
+                if self.dbm:
+                    self.dbm_new_loop_packet(event.packet)
+
     def new_archive_record(self, event):
-        pass
+        if self.dbm:
+            self.dbm_new_archive_record(event.record)
 
     def _to_weewx(self, thread_name, reply, usUnits):
         data = dict()
@@ -411,6 +459,64 @@ class SNMPservice(StdService):
                         val = None
                 data[key] = val
         return data
+
+    def dbm_init(self, engine, binding, binding_found):
+        self.accumulator = None
+        self.old_accumulator = None
+        self.dbm = None
+        if not binding: 
+            loginf("no database storage configured")
+            return
+        if not binding_found: 
+            logerr("binding '%s' not found in weewx.conf" % binding)
+            return
+        self.dbm = engine.db_binder.get_manager(data_binding=binding,
+                                                     initialize=True)
+        if self.dbm:
+            loginf("Using binding '%s' to database '%s'" % (binding,self.dbm.database_name))
+            # Back fill the daily summaries.
+            _nrecs, _ndays = self.dbm.backfill_day_summary()
+        else:
+            loginf("no database access")
+    
+    def dbm_close(self):
+        if self.dbm:
+            self.dbm.close()
+        
+    def dbm_new_loop_packet(self, packet):
+        """ Copyright (C) Tom Keffer """
+        # Do we have an accumulator at all? If not, create one:
+        if not self.accumulator:
+            self.accumulator = self._new_accumulator(packet['dateTime'])
+
+        # Try adding the LOOP packet to the existing accumulator. If the
+        # timestamp is outside the timespan of the accumulator, an exception
+        # will be thrown:
+        try:
+            self.accumulator.addRecord(packet, add_hilo=True)
+        except weewx.accum.OutOfSpan:
+            # Shuffle accumulators:
+            (self.old_accumulator, self.accumulator) = \
+                (self.accumulator, self._new_accumulator(packet['dateTime']))
+            # Try again:
+            self.accumulator.addRecord(packet, add_hilo=True)
+        
+    def dbm_new_archive_record(self, record):
+        if self.dbm:
+            self.dbm.addRecord(record,
+                           accumulator=self.old_accumulator,
+                           log_success=self.log_success,
+                           log_failure=self.log_failure)
+        
+    def _new_accumulator(self, timestamp):
+        """ Copyright (C) Tom Keffer """
+        start_ts = weeutil.weeutil.startOfInterval(timestamp,
+                                                   self.archive_interval)
+        end_ts = start_ts + self.archive_interval
+
+        # Instantiate a new accumulator
+        new_accumulator = weewx.accum.Accum(weeutil.weeutil.TimeSpan(start_ts, end_ts))
+        return new_accumulator
 
         
 if __name__ == '__main__':
