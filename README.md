@@ -37,7 +37,7 @@ sudo apt-get install python3-pysnmp
    the configuration file before you **first** start WeeWX
    after installing the extension. 
 
-   If you want to add additional variables you have to 
+   If you want to add additional variables afterwards you have to 
    extend the database schema manually by using the
    `wee_database` utility. This is **not** done automatically.
 
