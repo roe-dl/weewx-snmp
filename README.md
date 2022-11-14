@@ -4,7 +4,66 @@ WeeWX service to fetch data by SNMP
 There are sensors that offer their readings by SNMP. Fortunately there
 is a powerful Python module available to speak SNMP.
 
+## Prerequisites
+
+Install PySNMP if it is not already there.
+
+```
+sudo apt-get install python3-pysnmp
+```
+
+## Installation instructions
+
+1) download
+
+   ```
+   wget -O weewx-snmp.zip https://github.com/roe-dl/weewx-snmp/archive/master.zip
+   ```
+
+2) run the installer
+
+   ```
+   sudo wee_extension --install weewx-snmp.zip
+   ```
+
+3) edit configuration in weewx.conf
+
+   Before using this extension you have to set up which devices
+   to be queried and which variables to be fetched. See
+   section "Configuration" for details.
+
+   **Caution!** If you want to save the readings to a separate 
+   database and have it created properly, you have to edit
+   the configuration file before you **first** start WeeWX
+   after installing the extension. 
+
+   If you want to add additional variables you have to 
+   extend the database schema manually by using the
+   `wee_database` utility. This is **not** done automatically.
+
+5) restart weewx
+
+   ```
+   sudo /etc/init.d/weewx stop
+   sudo /etc/init.d/weewx start
+   ```
+
 ## Configuration
+
+This extension can query several devices simultaneously. It creates a
+separate thread for each of them. In Section `[SNMP]` of `weewx.conf` 
+each device has its own subsection. You can name that subsection as
+you want. The name is used to name the thread, only. 
+
+Each subsection contains the following information:
+* host and port to query
+* authentication data
+* subsubsection containg the description of the variables 
+  (observation types) to fetch, their names in WeeWX,
+  unit and unit group, and - if necessary - some conversion
+  formula.
+
+The observation types are automatically registered with WeeWX.
 
 Example configuration:
 ```
