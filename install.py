@@ -16,10 +16,11 @@ class SNMPInstaller(ExtensionInstaller):
             author="Johanna Roedenbeck",
             author_email="",
             data_services='user.snmp.SNMPservice',
+            archive_services='user.snmp.SNMParchive',
             config={
               'DataBindings':{
                   'snmp_binding':{
-                      'data_base':'snmp_sqlite',
+                      'database':'snmp_sqlite',
                       'table_name':'archive',
                       'manager':'weewx.manager.DaySummaryManager',
                       'schema':'user.snmp.schema'}},

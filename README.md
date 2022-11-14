@@ -1,29 +1,40 @@
 # weewx-snmp
 WeeWX service to fetch data by SNMP
 
+There are sensors that offer their readings by SNMP. Fortunately there
+is a powerful Python module available to speak SNMP.
+
 ## Configuration
 
 Example configuration:
 ```
-[DataBindings]
+...
 
+[DataBindings]
+    ...
     # additional section for an extra database to store the SNMP data
     # optional!
     [[snmp_binding]]
-        data_base = snmp_sqlite
+        database = snmp_sqlite
         table_name = archive
         manager = weewx.manager.DaySummaryManager
         schema = user.snmp.schema
 
 [Databases]
-
+    ...
     # additional section for an extra database to store SNMP data
     # optional!
     [[snmp_sqlite]]
         database_name = snmp.sdb
         database_type = SQLite
 
-# section in weewx.conf to add for the SNMP service
+[Engine]
+    [[Services]]
+        data_services = ..., user.snmp.SNMPservice
+        archive_services = ..., user.snmp.SNMParchive
+
+...
+
 [SNMP]
 
     # extra database

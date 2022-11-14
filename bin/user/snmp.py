@@ -122,14 +122,14 @@ table = [('dateTime',             'INTEGER NOT NULL UNIQUE PRIMARY KEY'),
          ('usUnits',              'INTEGER NOT NULL'),
          ('interval',             'INTEGER NOT NULL')] 
 
-def day_summaries():
+def day_summaries(table):
     return [(e[0], 'scalar') for e in table
                  if e[0] not in exclude_from_summary and e[1]=='REAL'] 
 
 schema = {
     'table': table,
-    'day_summaries' : day_summaries()
-}
+    'day_summaries' : day_summaries(table)
+    }
 
 ##############################################################################
 
@@ -322,7 +322,7 @@ class SNMPservice(StdService):
 
     def __init__(self, engine, config_dict):
         super(SNMPservice,self).__init__(engine, config_dict)
-        loginf("SNMP %s service" % VERSION)
+        loginf("SNMP service version %s" % VERSION)
         self.log_success = config_dict.get('log_success',True)
         self.log_failure = config_dict.get('log_failure',True)
         self.debug = weeutil.weeutil.to_int(config_dict.get('debug',0))
@@ -331,6 +331,7 @@ class SNMPservice(StdService):
             self.log_failure = True
         self.threads = dict()
         self.dbm = None
+        self.archive_interval = 300
         if 'SNMP' in config_dict:
             ct = 0
             for name in config_dict['SNMP'].sections:
@@ -342,22 +343,6 @@ class SNMPservice(StdService):
             if ct>0 and __name__!='__main__':
                 self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
                 self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
-            # init schema
-            schema = {
-                'table':table,
-                'day_summaries':day_summaries()}
-            if __name__=='__main__':
-                print('----------')
-                print(schema)
-                print('----------')
-            # init database
-            binding = config_dict['SNMP'].get('data_binding','snmp_binding')
-            if binding in ('None','none'): binding = None
-            if binding:
-                binding_found = 'DataBindings' in config_dict.sections and binding in config_dict['DataBindings']
-            else:
-                binding_found = None
-            self.dbm_init(engine,binding,binding_found)
 
     def _create_thread(self, thread_name, thread_dict):
         host = thread_dict.get('host')
@@ -396,16 +381,12 @@ class SNMPservice(StdService):
         return True
         
     def shutDown(self):
-        """ shutdown threads and close database """
+        """ shutdown threads """
         for ii in self.threads:
             try:
                 self.threads[ii]['thread'].shutDown()
             except Exception:
                 pass
-        try:
-            self.dbm_close()
-        except Exception:
-            pass
         
     def _process_data(self, thread_name):
         # get collected data
@@ -434,12 +415,9 @@ class SNMPservice(StdService):
                     logdbg("PACKET %s:%s" % (thread_name,data))
                 # update loop packet with device data
                 event.packet.update(data)
-                if self.dbm:
-                    self.dbm_new_loop_packet(event.packet)
 
     def new_archive_record(self, event):
-        if self.dbm:
-            self.dbm_new_archive_record(event.record)
+        pass
 
     def _to_weewx(self, thread_name, reply, usUnits):
         data = dict()
@@ -460,6 +438,62 @@ class SNMPservice(StdService):
                         val = None
                 data[key] = val
         return data
+
+class SNMParchive(StdService):
+
+    def __init__(self, engine, config_dict):
+        super(SNMParchive,self).__init__(engine, config_dict)
+        loginf("SNMP archive version %s" % VERSION)
+        self.log_success = config_dict.get('log_success',True)
+        self.log_failure = config_dict.get('log_failure',True)
+        self.debug = weeutil.weeutil.to_int(config_dict.get('debug',0))
+        if self.debug>0:
+            self.log_success = True
+            self.log_failure = True
+        self.dbm = None
+        self.archive_interval = 300
+        if 'SNMP' in config_dict:
+            if __name__!='__main__':
+                self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
+                self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
+            # init schema
+            global schema
+            schema = {
+                'table':table,
+                'day_summaries':day_summaries(table)}
+            if __name__=='__main__':
+                print('----------')
+                print(schema)
+                print('----------')
+            # init database
+            binding = config_dict['SNMP'].get('data_binding','snmp_binding')
+            if binding in ('None','none'): binding = None
+            if binding:
+                binding_found = ( 
+                    'DataBindings' in config_dict.sections and 
+                    binding in config_dict['DataBindings'] and
+                    'database' in config_dict['DataBindings'][binding]
+                )
+            else:
+                binding_found = None
+            self.dbm_init(engine,binding,binding_found)
+
+    def shutDown(self):
+        """ close database """
+        try:
+            self.dbm_close()
+        except Exception:
+            pass
+        
+    def new_loop_packet(self, event):
+        """ process loop packet """
+        if self.dbm:
+            self.dbm_new_loop_packet(event.packet)
+
+    def new_archive_record(self, event):
+        """ process archive record """
+        if self.dbm:
+            self.dbm_new_archive_record(event.record)
 
     def dbm_init(self, engine, binding, binding_found):
         self.accumulator = None
