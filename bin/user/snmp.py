@@ -38,6 +38,7 @@ VERSION = "0.1"
     
 """
 
+from pysnmp import __version__ as PYSNMPVERSION
 from pysnmp.hlapi import *
 from pyasn1.error import *
 from pysnmp.error import *
@@ -162,6 +163,22 @@ def printObjectTypeList(ot):
 
 class SNMPthread(threading.Thread):
 
+    # SNMP protocol versions
+    PROTOCOL = {
+        '1':{'mpModel':0},
+        '2c':{'mpModel':1},
+        '3':{'mpModel':None}}
+    
+    # V3 password methods
+    V3AUTH = {
+        'usmNoAuthProtocol': usmNoAuthProtocol,
+        'usmHMACMD5AuthProtocol': usmHMACMD5AuthProtocol,
+        'usmHMACSHAAuthProtocol': usmHMACSHAAuthProtocol,
+        'usmHMAC128SHA224AuthProtocol': usmHMAC128SHA224AuthProtocol,
+        'usmHMAC192SHA256AuthProtocol': usmHMAC192SHA256AuthProtocol,
+        'usmHMAC256SHA384AuthProtocol': usmHMAC256SHA384AuthProtocol,
+        'usmHMAC384SHA512AuthProtocol': usmHMAC384SHA512AuthProtocol}
+      
     def __init__(self, name, conf_dict, data_queue, query_interval):
     
         super(SNMPthread,self).__init__(name='SNMP-'+name)
@@ -172,6 +189,9 @@ class SNMPthread(threading.Thread):
         self.running = True
         
         ots = ('once','loop')
+        
+        self.sysDescr = None
+        self.sysName = None
         
         self.conf_dict = dict()
         # interpret configuration
@@ -209,6 +229,20 @@ class SNMPthread(threading.Thread):
             for idx,val in enumerate(self.conf_dict['once']):
                 self.conf_dict['once'][idx]['name'] = name + val['name']
         
+        self.conf_dict['community'] = self.conf_dict.get('community')
+        self.conf_dict['username'] = self.conf_dict.get('username')
+        self.conf_dict['password'] = self.conf_dict.get('password')
+        if 'protocol_version' not in self.conf_dict:
+            if 'community':
+                self.conf_dict['protocol_version'] = '1'
+            elif 'username' and 'password':
+                self.conf_dict['protocol_version'] = '3'
+            else:
+                logerr("protocol_version and/or authentication data missing")
+        self.conf_dict['mpModel'] = SNMPthread.PROTOCOL[self.conf_dict['protocol_version']]['mpModel']
+        self.conf_dict['password_protocol'] = SNMPthread.V3AUTH.get(self.conf_dict.get('password_protocol','-'),usmNoAuthProtocol)
+        loginf("thread '%s': SNMP version %s" % (self.name,self.conf_dict['protocol_version']))
+
         self.ot = dict()
         for ii in ots:
             self.ot[ii] = [ObjectType(ObjectIdentity(*_getoi(x))) for x in self.conf_dict[ii]]
@@ -222,10 +256,16 @@ class SNMPthread(threading.Thread):
         if __name__ == '__main__':
             print()
             print('-----',self.name,'-----',ot,'-----')
-
+            
+        if self.conf_dict['protocol_version']=='3':
+            #print(self.conf_dict['username'],self.conf_dict['password'],self.conf_dict['password_protocol'])
+            auth = UsmUserData(self.conf_dict['username'],authKey=self.conf_dict['password'],authProtocol=self.conf_dict['password_protocol'])
+        else:
+            auth = CommunityData(self.conf_dict['community'], mpModel=self.conf_dict['mpModel'])
+        
         iterator = getCmd(
             SnmpEngine(),
-            CommunityData('public', mpModel=0),
+            auth,
             UdpTransportTarget((self.conf_dict['host'], self.conf_dict['port'])),
             ContextData(),
             *self.ot[ot]
@@ -271,6 +311,10 @@ class SNMPthread(threading.Thread):
                             else:
                                 val = weewx.units.ValueTuple(val.prettyPrint(),None,None)
                             record[conf['name']] = val
+                            if varBind[0]=='1.3.6.1.2.1.1.1.0':
+                                self.sysDescr = val
+                            elif varBind[0]=='1.3.6.1.2.1.1.5.0':
+                                self.sysName = val
                             if ot=='once':
                                 val = varBind[1].prettyPrint()
                                 if tp=='DisplayString':
@@ -311,7 +355,7 @@ class SNMPthread(threading.Thread):
             self.getRecord('once')
             while self.running:
                 self.getRecord('loop')
-                time.sleep(5)
+                time.sleep(self.query_interval)
         except Exception as e:
             logerr("thread '%s': %s" % (self.name,e))
         finally:
@@ -323,6 +367,7 @@ class SNMPservice(StdService):
     def __init__(self, engine, config_dict):
         super(SNMPservice,self).__init__(engine, config_dict)
         loginf("SNMP service version %s" % VERSION)
+        loginf("Using PySNMP version %s" % PYSNMPVERSION)
         self.log_success = config_dict.get('log_success',True)
         self.log_failure = config_dict.get('log_failure',True)
         self.debug = weeutil.weeutil.to_int(config_dict.get('debug',0))
@@ -346,7 +391,7 @@ class SNMPservice(StdService):
 
     def _create_thread(self, thread_name, thread_dict):
         host = thread_dict.get('host')
-        query_interval = thread_dict.get('query_interval',1)
+        query_interval = thread_dict.get('query_interval',5)
         # IP address is mandatory.
         if not host:
             logerr("thread '%s': missing IP address" % thread_name) 

@@ -63,6 +63,13 @@ Each subsection contains the following information:
   unit and unit group, and - if necessary - some conversion
   formula.
 
+There are two possible subsubsections, `[[once]]` and `[[loop]]`,
+the former is used once at program start and logged to syslog, 
+the latter is performed continuously and included in the LOOP 
+packets. If no `[[once]]` subsubsection is present, defaults
+are used, fetching some general device information. For the
+`[[loop]]` subsubsection, there are no defaults.
+
 The observation types are automatically registered with WeeWX.
 
 Example configuration:
