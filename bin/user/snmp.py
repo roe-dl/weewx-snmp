@@ -179,6 +179,17 @@ class SNMPthread(threading.Thread):
         'usmHMAC256SHA384AuthProtocol': usmHMAC256SHA384AuthProtocol,
         'usmHMAC384SHA512AuthProtocol': usmHMAC384SHA512AuthProtocol}
       
+    # V3 encryption methods
+    V3PRIV = {
+        'usmNoPrivProtocol': usmNoPrivProtocol,
+        'usmDESPrivProtocol': usmDESPrivProtocol,
+        'usm3DESEDEPrivProtocol': usm3DESEDEPrivProtocol,
+        'usmAesCfb128Protocol': usmAesCfb128Protocol,
+        'usmAesCfb192Protocol': usmAesCfb192Protocol,
+        'usmAesCfb256Protocol': usmAesCfb256Protocol,
+        'usmAesBlumenthalCfb192Protocol': usmAesBlumenthalCfb192Protocol,
+        'usmAesBlumenthalCfb256Protocol': usmAesBlumenthalCfb256Protocol}
+
     def __init__(self, name, conf_dict, data_queue, query_interval):
     
         super(SNMPthread,self).__init__(name='SNMP-'+name)
@@ -228,10 +239,10 @@ class SNMPthread(threading.Thread):
             self.conf_dict['once'] = copy.deepcopy(SYSOBS)
             for idx,val in enumerate(self.conf_dict['once']):
                 self.conf_dict['once'][idx]['name'] = name + val['name']
-        
-        self.conf_dict['community'] = self.conf_dict.get('community')
-        self.conf_dict['username'] = self.conf_dict.get('username')
-        self.conf_dict['password'] = self.conf_dict.get('password')
+        # initialize necessary parameters
+        for ii in ('community','username','password','encryption'):
+            self.conf_dict[ii] = self.conf_dict.get(ii)
+        # guess SNMP version if not specified
         if 'protocol_version' not in self.conf_dict:
             if 'community':
                 self.conf_dict['protocol_version'] = '1'
@@ -239,15 +250,18 @@ class SNMPthread(threading.Thread):
                 self.conf_dict['protocol_version'] = '3'
             else:
                 logerr("protocol_version and/or authentication data missing")
-        self.conf_dict['mpModel'] = SNMPthread.PROTOCOL[self.conf_dict['protocol_version']]['mpModel']
-        self.conf_dict['password_protocol'] = SNMPthread.V3AUTH.get(self.conf_dict.get('password_protocol','-'),usmNoAuthProtocol)
+        # initialize more parameters
+        self.mpModel = SNMPthread.PROTOCOL[self.conf_dict['protocol_version']]['mpModel']
+        self.password_protocol = SNMPthread.V3AUTH.get(self.conf_dict.get('password_protocol','-'),usmNoAuthProtocol)
+        self.encryption_protocol = SNMPthread.V3PRIV.get(self.conf_dict.get('encryption_protocol','-'),usmNoPrivProtocol)
         loginf("thread '%s': SNMP version %s" % (self.name,self.conf_dict['protocol_version']))
-
+        # create variable objects lists
         self.ot = dict()
         for ii in ots:
             self.ot[ii] = [ObjectType(ObjectIdentity(*_getoi(x))) for x in self.conf_dict[ii]]
 
     def shutDown(self):
+        """ request thread shutdown """
         self.running = False
         loginf("thread '%s': shutdown requested" % self.name)
         
@@ -256,12 +270,19 @@ class SNMPthread(threading.Thread):
         if __name__ == '__main__':
             print()
             print('-----',self.name,'-----',ot,'-----')
-            
+        
+        # authentication data
         if self.conf_dict['protocol_version']=='3':
-            #print(self.conf_dict['username'],self.conf_dict['password'],self.conf_dict['password_protocol'])
-            auth = UsmUserData(self.conf_dict['username'],authKey=self.conf_dict['password'],authProtocol=self.conf_dict['password_protocol'])
+            # SNMP v3
+            auth = UsmUserData(self.conf_dict['username'],
+                               authKey=self.conf_dict['password'],
+                               authProtocol=self.password_protocol,
+                               privKey=self.conf_dict['encryption'],
+                               privProtocol=self.encryption_protocol)
         else:
-            auth = CommunityData(self.conf_dict['community'], mpModel=self.conf_dict['mpModel'])
+            # SNMP v1 and v2c
+            auth = CommunityData(self.conf_dict['community'], 
+                                 mpModel=self.mpModel)
         
         iterator = getCmd(
             SnmpEngine(),
@@ -276,10 +297,10 @@ class SNMPthread(threading.Thread):
         errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
         if errorIndication:
-            logerr(errorIndication)
+            logerr("thread '%s': %s" % (self.name,errorIndication))
 
         elif errorStatus:
-            logerr('%s at %s' % (errorStatus.prettyPrint(),
+            logerr("thread '%s': %s at %s" % (self.name,errorStatus.prettyPrint(),
                         errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
 
         else:

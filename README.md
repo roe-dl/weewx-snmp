@@ -108,7 +108,7 @@ are used, fetching some general device information. For the
 * `unit`: The unit the reading is provided by the device.
   That is **not** the unit the readings are to be saved to
   database or displayed in skins. For those purposes the values are converted
-  automatically by WeeWX. That is the source unit.
+  automatically by WeeWX. The unit here is the source unit.
 * `group`: Unit group, used by WeeWX to choose the right unit
   to save to database and to display in skins.
   If omitted, the extension tries to determine the unit group
