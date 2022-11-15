@@ -316,7 +316,7 @@ class SNMPthread(threading.Thread):
                         if oid==val[0].getOid():
                             val = varBind[1]
                             conf = self.conf_dict[ot][ii]
-                            if tp=='DisplayString':
+                            if tp in ('DisplayString','OctetString'):
                                 val = weewx.units.ValueTuple(val.prettyPrint(),None,None)
                             elif tp in ('Integer','Integer32','Integer64'):
                                 val = int(val)
@@ -338,7 +338,7 @@ class SNMPthread(threading.Thread):
                                 self.sysName = val
                             if ot=='once':
                                 val = varBind[1].prettyPrint()
-                                if tp=='DisplayString':
+                                if tp in ('DisplayString','OctetString'):
                                     val = '"%s"' % val
                                 loginf("%s = %s : %s" % (
                                   varBind[0].prettyPrint(),

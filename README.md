@@ -225,6 +225,39 @@ The observation types are automatically registered with WeeWX.
                 group = 'group_percent'
 ```
 
+### Default `[once]` section
+
+This is the default `[once]` subsubsection that applies if no `[once]`
+subsubsection is present.
+
+```
+        [[[once]]]
+            [[[[SNMPv2-MIB::sysDescr.0]]]]
+                oid = 'SNMPv2-MIB', 'sysDescr', 0
+                name = sysDescr
+            [[[[SNMPv2-MIB::sysObjectID.0]]]]
+                oid = 'SNMPv2-MIB', 'sysObjectID', 0
+                name = sysObjectID
+            [[[[SNMPv2-MIB::sysUpTime.0]]]]
+                oid = 'SNMPv2-MIB', 'sysUpTime', 0
+                name = sysUpTime
+            [[[[SNMPv2-MIB::sysContact.0]]]]
+                oid = 'SNMPv2-MIB', 'sysContact', 0
+                name = sysContact
+            [[[[SNMPv2-MIB::sysName.0]]]]
+                oid = 'SNMPv2-MIB', 'sysName', 0
+                name = sysName
+            [[[[SNMPv2-MIB::sysLocation.0]]]]
+                oid = 'SNMPv2-MIB', 'sysLocation', 0
+                name = sysLocation
+            [[[[SNMPv2-MIB::sysServices.0]]]]
+                oid = 'SNMPv2-MIB', 'sysServices', 0
+                name = sysServices
+            [[[[SNMPv2-MIB::sysORLastChange.0]]]]
+                oid = 'SNMPv2-MIB', 'sysORLastChange', 0
+                name = sysORLastChange
+```
+
 ## References
 
 * [SNMP Documentation](https://pysnmp.readthedocs.io/en/latest/)
