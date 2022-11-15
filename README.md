@@ -2,7 +2,8 @@
 WeeWX service to fetch data by SNMP
 
 There are sensors that offer their readings by SNMP. Fortunately there
-is a powerful Python module available to speak SNMP.
+is a powerful Python module available to speak SNMP. This extension
+makes it available to WeeWX.
 
 ## Prerequisites
 
@@ -116,11 +117,17 @@ Example configuration:
         # host and port to be connected
         host = replace_me
         port = 161
+        # optional
+        #query_interval = 5
 
         # authentication data
+        protocol_version = 2c # possible values '1', '2c', '3'
+        # for version 1 and 2c
         community = replace_me
-        username = replace_me
-        password = replace_me
+        # for version 3
+        #username = replace_me
+        #password = replace_me
+        #password_protocol = usmNoAuthProtocol
 
         # data to fetch
         [[[loop]]]
