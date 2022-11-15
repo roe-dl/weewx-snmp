@@ -56,13 +56,33 @@ separate thread for each of them. In Section `[SNMP]` of `weewx.conf`
 each device has its own subsection. You can name that subsection as
 you want. The name is used to name the thread, only. 
 
-Each subsection contains the following information:
+Each subsection contains of the following information:
 * host and port to query
 * authentication data
 * subsubsection containg the description of the variables 
   (observation types) to fetch, their names in WeeWX,
   unit and unit group, and - if necessary - some conversion
   formula.
+
+### Connection configuration
+
+* `host`: host name or IP address of the device to get data from
+  (mandatory)
+* `port`: port number (mandatory, standard 161)
+* `query_interval`: query interval (optional, default 5s)
+
+### Authenticaton configuration
+
+Possible values for `password_protocol`:
+* usmNoAuthProtocol
+* usmHMACMD5AuthProtocol
+* usmHMACSHAAuthProtocol
+* usmHMAC128SHA224AuthProtocol
+* usmHMAC192SHA256AuthProtocol
+* usmHMAC256SHA384AuthProtocol
+* usmHMAC384SHA512AuthProtocol
+
+### Variables configuration
 
 There are two possible subsubsections, `[[once]]` and `[[loop]]`,
 the former is used once at program start and logged to syslog, 
@@ -73,7 +93,8 @@ are used, fetching some general device information. For the
 
 The observation types are automatically registered with WeeWX.
 
-Example configuration:
+### Example configuration
+
 ```
 ...
 
