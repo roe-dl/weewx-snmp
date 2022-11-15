@@ -52,14 +52,14 @@ sudo apt-get install python3-pysnmp
 ## Configuration
 
 This extension can query several devices simultaneously. It creates a
-separate thread for each of them. In Section `[SNMP]` of `weewx.conf` 
+separate thread for each of them. In section `[SNMP]` of `weewx.conf` 
 each device has its own subsection. You can name that subsection as
 you want. The name is used to name the thread, only. 
 
 Each subsection contains of the following information:
-* host and port to query
+* connection data
 * authentication data
-* subsubsection containg the description of the variables 
+* subsubsection(s) containing the description of the variables 
   (observation types) to fetch, their names in WeeWX,
   unit and unit group, and - if necessary - some conversion
   formula.
@@ -71,7 +71,7 @@ Each subsection contains of the following information:
 * `port`: port number (mandatory, standard 161)
 * `query_interval`: query interval (optional, default 5s)
 
-### Authenticaton configuration
+### Authentication configuration
 
 Possible values for `password_protocol`:
 * usmNoAuthProtocol
@@ -82,6 +82,16 @@ Possible values for `password_protocol`:
 * usmHMAC256SHA384AuthProtocol
 * usmHMAC384SHA512AuthProtocol
 
+Possible values for `encryption_protocol`:
+* usmNoPrivProtocol
+* usmDESPrivProtocol
+* usm3DESEDEPrivProtocol
+* usmAesCfb128Protocol
+* usmAesCfb192Protocol
+* usmAesCfb256Protocol
+* usmAesBlumenthalCfb192Protocol
+* usmAesBlumenthalCfb256Protocol
+
 ### Variables configuration
 
 There are two possible subsubsections, `[[once]]` and `[[loop]]`,
@@ -90,6 +100,19 @@ the latter is performed continuously and included in the LOOP
 packets. If no `[[once]]` subsubsection is present, defaults
 are used, fetching some general device information. For the
 `[[loop]]` subsubsection, there are no defaults.
+
+* `oid`: OID of the variable. If omitted, the section name is used 
+  for OID.
+* `conversion`: optional conversion formula
+* `name`: Observation type name used inside WeeWX
+* `unit`: The unit the reading is provided by the device.
+  That is **not** the unit the readings are to be saved to
+  database or displayed in skins. For those purposes the values are converted
+  automatically by WeeWX. That is the source unit.
+* `group`: Unit group, used by WeeWX to choose the right unit
+  to save to database and to display in skins.
+  If omitted, the extension tries to determine the unit group
+  by the unit.
 
 The observation types are automatically registered with WeeWX.
 
@@ -204,6 +227,10 @@ The observation types are automatically registered with WeeWX.
 
 ## References
 
+* [SNMP Documentation](https://pysnmp.readthedocs.io/en/latest/)
 * http://www.oidview.com/mibs/0/SNMPv2-MIB.html
 * http://www.oidview.com/mibs/0/SNMPv2-SMI.html
 * http://www.oidview.com/mibs/0/UPS-MIB.html
+* [PySNMP at Github](https://github.com/etingof/pysnmp)
+* [PyASN1 at Github](https://github.com/etingof/pyasn1)
+* [PySMI at Github](https://github.com/etingof/pysmi)
