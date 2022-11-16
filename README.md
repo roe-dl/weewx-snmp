@@ -116,6 +116,9 @@ are used, fetching some general device information. For the
 
 The observation types are automatically registered with WeeWX.
 
+The standardized OID for sensor readings is `iso.3.6.1.2.1.99.1.1.1.4`,
+followed by an index of the sensor, starting with `.1`
+
 ### Example configuration
 
 ```
@@ -267,3 +270,5 @@ subsubsection is present.
 * [PySNMP at Github](https://github.com/etingof/pysnmp)
 * [PyASN1 at Github](https://github.com/etingof/pyasn1)
 * [PySMI at Github](https://github.com/etingof/pysmi)
+* https://www.circitor.fr/Mibs/Html/R/RFC1213-MIB.php
+* https://www.circitor.fr/Mibs/Html/E/ENTITY-SENSOR-MIB.php
