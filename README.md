@@ -113,6 +113,10 @@ are used, fetching some general device information. For the
   to save to database and to display in skins.
   If omitted, the extension tries to determine the unit group
   by the unit. 
+* `sql_datatype`: If specified, this datatype is used when creating
+  the database table. Default is `REAL` if omitted. This entry can
+  be used for string data especially. An example for a string datatype
+  is `VARCHAR(30)`.
 
 See [WeeWX Customization Guide](http://www.weewx.com/docs/customizing.htm#units)
 for a list of predefined units and unit groups.

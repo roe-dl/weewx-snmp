@@ -166,6 +166,12 @@ def printObjectTypeList(ot):
         print('getMibNode()     :',x[0].getMibNode())
         print()
 
+def issqltexttype(x):
+    """ Is this a string type in SQL? """
+    if x is None: return None
+    x = x.upper().split('(')[0].strip()
+    return x in ('TEXT','CLOB','CHARACTER','VARCHAR','VARYING CHARACTER','NCHAR','NATIVE CHARACTER','NVARCHAR')
+    
 class SNMPthread(threading.Thread):
 
     # SNMP protocol versions
@@ -434,7 +440,7 @@ class SNMPservice(StdService):
             obstype = thread_dict['loop'][ii].get('name')
             obsunit = thread_dict['loop'][ii].get('unit')
             obsgroup = thread_dict['loop'][ii].get('group')
-            obsdatatype = 'REAL'
+            obsdatatype = thread_dict['loop'][ii].get('sql_datatype','REAL')
             if not obsgroup and obsunit:
                 # if no unit group is given, try to find out
                 for jj in weewx.units.MetricUnits:
@@ -446,15 +452,16 @@ class SNMPservice(StdService):
                         if weewx.units.USUnits[jj]==obsunit:
                             obsgroup = jj
                             break
-            if obstype and obsgroup:
-                weewx.units.obs_group_dict.setdefault(obstype,obsgroup)
+            if obstype:
+                if obsgroup:
+                    weewx.units.obs_group_dict.setdefault(obstype,obsgroup)
+                    if (obsgroup in ('group_deltatime','group_time','group_count') and
+                        obstype not in weewx.accum.accum_dict):
+                        _accum[obstype] = ACCUM_LAST
+                if issqltexttype(obsdatatype):
+                    _accum[obstype] = ACCUM_STRING
                 global table
                 table.append((obstype,obsdatatype))
-                if (obsgroup in ('group_deltatime','group_time','group_count') and
-                    obstype not in weewx.accum.accum_dict):
-                    _accum[obstype] = ACCUM_LAST
-                elif obsgroup in ('group_string',):
-                    _accum[obstype] = ACCUM_STRING
         # add accumulator entries
         if _accum:
             loginf ("accumulator dict for '%s': %s" % (thread_name,_accum))
