@@ -112,7 +112,10 @@ are used, fetching some general device information. For the
 * `group`: Unit group, used by WeeWX to choose the right unit
   to save to database and to display in skins.
   If omitted, the extension tries to determine the unit group
-  by the unit.
+  by the unit. 
+
+See [WeeWX Customization Guide](http://www.weewx.com/docs/customizing.htm#units)
+for a list of predifined units and unit groups.
 
 The observation types are automatically registered with WeeWX.
 

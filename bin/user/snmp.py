@@ -103,7 +103,12 @@ else:
 import weewx
 from weewx.engine import StdService
 import weeutil.weeutil
-        
+import weewx.accum
+
+ACCUM_SUM = { 'extractor':'sum' }
+ACCUM_STRING = { 'accumulator':'firstlast','extractor':'last' }
+ACCUM_LAST = { 'extractor':'last' }
+    
 SYSOBS = [{'oid':('SNMPv2-MIB', 'sysDescr', 0),'name':'sysDescr'},
         {'oid':('SNMPv2-MIB', 'sysObjectID', 0),'name':'sysObjectID'},
         {'oid':('SNMPv2-MIB', 'sysUpTime', 0),'name':'sysUpTime',},
@@ -423,6 +428,7 @@ class SNMPservice(StdService):
         self.threads[thread_name]['queue'] = queue.Queue()
         self.threads[thread_name]['thread'] = SNMPthread(thread_name,thread_dict,self.threads[thread_name]['queue'],query_interval)
         # initialize observation types
+        _accum = dict()
         for ii in thread_dict['loop']:
             obstype = thread_dict['loop'][ii].get('name')
             obsunit = thread_dict['loop'][ii].get('unit')
@@ -441,7 +447,17 @@ class SNMPservice(StdService):
                             break
             if obstype and obsgroup:
                 weewx.units.obs_group_dict.setdefault(obstype,obsgroup)
+                global table
                 table.append((obstype,obsdatatype))
+                if (obsgroup in ('group_deltatime','group_time','group_count') and
+                    obstype not in weewx.accum.accum_dict):
+                    _accum[obstype] = ACCUM_LAST
+                elif obsgroup in ('group_string',):
+                    _accum[obstype] = ACCUM_STRING
+        # add accumulator entries
+        if _accum:
+            loginf ("accumulator dict for '%s': %s" % (thread_name,_accum))
+            weewx.accum.accum_dict.maps.append(_accum)
         # start thread
         self.threads[thread_name]['thread'].start()
         return True
