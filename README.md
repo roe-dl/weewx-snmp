@@ -115,7 +115,7 @@ are used, fetching some general device information. For the
   by the unit. 
 
 See [WeeWX Customization Guide](http://www.weewx.com/docs/customizing.htm#units)
-for a list of predifined units and unit groups.
+for a list of predefined units and unit groups.
 
 The observation types are automatically registered with WeeWX.
 
@@ -263,6 +263,14 @@ subsubsection is present.
                 oid = 'SNMPv2-MIB', 'sysORLastChange', 0
                 name = sysORLastChange
 ```
+
+## Troubleshooting
+
+The accumulator `firstlast` does not work for numeric values of this
+extension. The reason is that the database schema within this extension
+includes all numeric values in the list of daily summeries tables. But
+WeeWX let you have an observation type either with a daily summeries
+table or the `firstlast` accumulator, not both.
 
 ## References
 
