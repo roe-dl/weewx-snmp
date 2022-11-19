@@ -73,6 +73,23 @@ Each subsection contains of the following information:
 
 ### Authentication configuration
 
+There are different authentication methods for SNMP version 1 and 2c
+on one hand and 3 on the other hand.
+
+configuration entries for SNMP version 1 and 2c:
+* `protocol_version`: Protocol version to use. Possible values are 1 or 2c
+* `community`: Community name for receiving data. Often it is `public`.
+
+configuration entries for SNMP version 3:
+* `protocol_version`: Protocol version to use. In this case 3.
+* `username`: User name
+* `password`: Password (optional)
+* `password_protocol`: Authentication protocol, see below
+  for possible values (optional)
+* `encryption`: Encryption passphrasse (optional)
+* `encryption_protocol`: Privacy protocol (means: encryption protocol),
+  see below for possible values (optional)
+
 Possible values for `password_protocol`:
 * usmNoAuthProtocol
 * usmHMACMD5AuthProtocol
