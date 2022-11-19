@@ -141,7 +141,7 @@ for a list of predefined units and unit groups.
 The observation types are automatically registered with WeeWX.
 
 The standardized OID for sensor readings is `iso.3.6.1.2.1.99.1.1.1.4`,
-followed by an index of the sensor, starting with `.1`
+followed by an index of the sensor, starting with `.1`.
 
 ### Example configuration
 
@@ -255,7 +255,7 @@ followed by an index of the sensor, starting with `.1`
 ### Default `[once]` section
 
 This is the default `[once]` subsubsection that applies if no `[once]`
-subsubsection is present.
+subsubsection is present. 
 
 ```
         [[[once]]]
@@ -309,11 +309,18 @@ table or the `firstlast` accumulator, not both.
 * http://www.oidview.com/mibs/0/UPS-MIB.html
 * https://www.circitor.fr/Mibs/Html/R/RFC1213-MIB.php
 * https://www.circitor.fr/Mibs/Html/E/ENTITY-SENSOR-MIB.php
+* [Private enterprise numbers](https://www.iana.org/assignments/enterprise-numbers/)
 
 ### WeeWX
 
-* [WeeWX](https://www.weewx.com)
-* [German WeeWX information](https://www.woellsdorf-wetter.de/software/weewx.html)
+* [WeeWX website](https://www.weewx.com)
+* [WeeWX information in german](https://www.woellsdorf-wetter.de/software/weewx.html)
 * [WeeWX customization guide](https://www.weewx.com/docs/customizing.htm)
+  (See this guide for using the observation types in skins.)
 * [WeeWX accumulators](https://github.com/weewx/weewx/wiki/Accumulators)
+  (This extension tries to set up reasonable accumulators for the
+  observation types, but if you want them different or if they do not
+  work appropriately, you can define them in `weewx.conf`)
 * [Calculation in templates](https://github.com/weewx/weewx/wiki/calculate-in-templates)
+* [WeeWX extension to monitor the computer WeeWX is running on](https://github.com/matthewwall/weewx-cmon)
+  (That is not related to SNMP, but to monitoring. It uses Linux tools.)
