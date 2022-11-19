@@ -86,7 +86,7 @@ configuration entries for SNMP version 3:
 * `password`: Password (optional)
 * `password_protocol`: Authentication protocol, see below
   for possible values (optional)
-* `encryption`: Encryption passphrasse (optional)
+* `encryption`: Encryption passphrase (optional)
 * `encryption_protocol`: Privacy protocol (means: encryption protocol),
   see below for possible values (optional)
 
@@ -295,12 +295,25 @@ table or the `firstlast` accumulator, not both.
 
 ## References
 
-* [SNMP Documentation](https://pysnmp.readthedocs.io/en/latest/)
-* http://www.oidview.com/mibs/0/SNMPv2-MIB.html
-* http://www.oidview.com/mibs/0/SNMPv2-SMI.html
-* http://www.oidview.com/mibs/0/UPS-MIB.html
+### Python modules
+
+* [PySNMP documentation](https://pysnmp.readthedocs.io/en/latest/)
 * [PySNMP at Github](https://github.com/etingof/pysnmp)
 * [PyASN1 at Github](https://github.com/etingof/pyasn1)
 * [PySMI at Github](https://github.com/etingof/pysmi)
+
+### MIBs
+
+* http://www.oidview.com/mibs/0/SNMPv2-MIB.html
+* http://www.oidview.com/mibs/0/SNMPv2-SMI.html
+* http://www.oidview.com/mibs/0/UPS-MIB.html
 * https://www.circitor.fr/Mibs/Html/R/RFC1213-MIB.php
 * https://www.circitor.fr/Mibs/Html/E/ENTITY-SENSOR-MIB.php
+
+### WeeWX
+
+* [WeeWX](https://www.weewx.com)
+* [German WeeWX information](https://www.woellsdorf-wetter.de/software/weewx.html)
+* [WeeWX customization guide](https://www.weewx.com/docs/customizing.htm)
+* [WeeWX accumulators](https://github.com/weewx/weewx/wiki/Accumulators)
+* [Calculation in templates](https://github.com/weewx/weewx/wiki/calculate-in-templates)
