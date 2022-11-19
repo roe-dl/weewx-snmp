@@ -427,6 +427,7 @@ class SNMPservice(StdService):
         self.threads[thread_name] = dict()
         self.threads[thread_name]['queue'] = queue.Queue()
         self.threads[thread_name]['thread'] = SNMPthread(thread_name,thread_dict,self.threads[thread_name]['queue'],query_interval)
+        self.threads[thread_name]['reply_count'] = 0
         # initialize observation types
         _accum = dict()
         for ii in thread_dict['loop']:
@@ -473,6 +474,7 @@ class SNMPservice(StdService):
     def _process_data(self, thread_name):
         # get collected data
         data = None
+        ct = 0
         while True:
             try:
                 data1 = self.threads[thread_name]['queue'].get(block=False)
@@ -480,7 +482,9 @@ class SNMPservice(StdService):
                 break
             else:
                 data = data1
+                ct += 1
         if data:
+            data[1]['count'] = (ct,'count','group_count')
             return data[1]
         return None
 
@@ -489,17 +493,28 @@ class SNMPservice(StdService):
             reply = self._process_data(thread_name)
             if reply:
                 data = self._to_weewx(thread_name,reply,event.packet['usUnits'])
-                # 'dateTime' and 'interval' must not be in data
-                if 'dateTime' in data: del data['dateTime']
-                if 'interval' in data: del data['interval']
                 # log 
                 if self.debug>=3: 
                     logdbg("PACKET %s:%s" % (thread_name,data))
+                # 'dateTime' and 'interval' must not be in data
+                if 'dateTime' in data: del data['dateTime']
+                if 'interval' in data: del data['interval']
+                if 'count' in data: del data['count']
                 # update loop packet with device data
                 event.packet.update(data)
+                # count records received from the device
+                self.threads[thread_name]['reply_count'] += reply.get('count',(0,None,None))[0]
 
     def new_archive_record(self, event):
-        pass
+        for thread_name in self.threads:
+            # log error if we did not receive any data from the device
+            if self.log_failure and not self.threads[thread_name]['reply_count']:
+                logerr("no data received from %s during archive interval" % thread_name)
+            # log success to see that we are still receiving data
+            if self.log_success and self.threads[thread_name]['reply_count']:
+                loginf("%s records received from %s during archive interval" % (self.threads[thread_name]['reply_count'],thread_name))
+            # reset counter
+            self.threads[thread_name]['reply_count'] = 0
 
     def _to_weewx(self, thread_name, reply, usUnits):
         data = dict()
