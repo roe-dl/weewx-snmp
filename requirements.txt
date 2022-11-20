@@ -1,0 +1,5 @@
+pysnmp
+pyasn1
+threading
+configobj
+weewx
