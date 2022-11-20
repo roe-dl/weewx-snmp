@@ -285,6 +285,30 @@ subsubsection is present.
                 name = sysORLastChange
 ```
 
+## OIDs
+
+Those are examples.
+
+Object Name | Object Identifier | Comment
+------------|---|-------------------
+itu-t | 0 | starting number of OIDs issued by ITU-T
+iso | 1 | starting number of OIDs issued by ISO
+joint-iso-itu-t | 2 | 
+------------|-----|--------
+iso.org.dod.internet | 1.3.6.1 | Internet related
+iso.org.dod.internet.directory | 1.3.6.1.1 |
+iso.org.dod.internet.mgmt | 1.3.6.1.2 | 
+iso.org.dod.internet.experimental | 1.3.6.1.3 |
+iso.org.dod.internet.private | 1.3.6.1.4 |
+iso.org.dod.internet.security | 1.3.6.1.5 |
+iso.org.dod.internet.snmpV2 | 1.3.6.1.5 |
+------------|-----|--------
+iso.org.dod.internet.mgmt.mib-2 | 1.3.6.1.2.1 | 
+iso.org.dod.internet.mgmt.mib-2.upsMIB | 1.3.6.1.2.1.33 | uninteruptable power supply (UPS)
+iso.org.dod.internet.mgmt.mib-2.99 | 1.3.6.1.2.1.99 | sensors
+iso.org.dod.internet.mgmt.mib-2.powerEthernetMIB | 1.3.6.1.2.1.105 | PoE
+
+
 ## Troubleshooting
 
 The accumulator `firstlast` does not work for numeric values of this
