@@ -295,6 +295,13 @@ table or the `firstlast` accumulator, not both.
 
 ## References
 
+### SNMP
+
+* [Net-SNMP tools](http://www.net-snmp.org) 
+  (contains `snmpget` and `snmpwalk` command line tool to retrieve
+  data from SNMP agents)
+* [SNMP tester for Windows](https://www.heise.de/download/product/paessler-snmp-tester-29883)
+
 ### Python modules
 
 * [PySNMP documentation](https://pysnmp.readthedocs.io/en/latest/)
