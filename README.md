@@ -309,9 +309,9 @@ table or the `firstlast` accumulator, not both.
 ### Python modules
 
 * [PySNMP documentation](https://pysnmp.readthedocs.io/en/latest/)
-* [PySNMP at Github](https://github.com/etingof/pysnmp)
-* [PyASN1 at Github](https://github.com/etingof/pyasn1)
-* [PySMI at Github](https://github.com/etingof/pysmi)
+* [PySNMP at Github](https://github.com/pysnmp/pysnmp)
+* [PyASN1 at Github](https://github.com/pysnmp/pyasn1)
+* [PySMI at Github](https://github.com/pysnmp/pysmi)
 
 ### MIBs
 
