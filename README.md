@@ -69,6 +69,8 @@ Each subsection contains of the following information:
 * `host`: host name or IP address of the device to get data from
   (mandatory)
 * `port`: port number (mandatory, standard 161)
+* `timeout`: request timeout
+* `retries`: request retries (0 is no retries)
 * `query_interval`: query interval (optional, default 5s)
 
 ### Authentication configuration

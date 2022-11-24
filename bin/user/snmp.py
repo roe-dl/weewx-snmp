@@ -19,7 +19,7 @@
 
 """
 
-VERSION = "0.1"
+VERSION = "0.2a1"
 
 """
     common units and unit groups:
@@ -244,6 +244,8 @@ class SNMPthread(threading.Thread):
                     val = True
                 elif ii=='port':
                     val = int(val)
+                elif ii in ('timeout','retries'):
+                    val = float(val)
                 self.conf_dict[ii] = val
         # if no 'once' section defined use defaults
         if 'once' not in self.conf_dict: 
@@ -298,7 +300,7 @@ class SNMPthread(threading.Thread):
         iterator = getCmd(
             SnmpEngine(),
             auth,
-            UdpTransportTarget((self.conf_dict['host'], self.conf_dict['port'])),
+            UdpTransportTarget((self.conf_dict['host'], self.conf_dict['port']),timeout=self.conf_dict.get('timeout',0.5),retries=self.conf_dict.get('retries',0)),
             ContextData(),
             *self.ot[ot]
         )
