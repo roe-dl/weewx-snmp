@@ -64,6 +64,15 @@ Each subsection contains of the following information:
   unit and unit group, and - if necessary - some conversion
   formula.
 
+### General options
+
+* `enable`: If True or omitted, retrieve data from that device.
+  If False, that subsection is not used. (optional)
+* `log_success`: Log successful operation. 
+  If omitted, global options are used. (optional)
+* `log_failure`: Log unsuccessful operation. 
+  If omitted, global options are used. (optional)
+
 ### Connection configuration
 
 * `host`: host name or IP address of the device to get data from

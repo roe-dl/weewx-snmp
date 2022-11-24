@@ -353,7 +353,7 @@ class SNMPthread(threading.Thread):
                                 val = varBind[1].prettyPrint()
                                 if tp in ('DisplayString','OctetString'):
                                     val = '"%s"' % val
-                                loginf("%s = %s : %s" % (
+                                loginf("%s %s = %s : %s" % (self.name,
                                   varBind[0].prettyPrint(),
                                   tp,val))
                             break
@@ -402,9 +402,10 @@ class SNMPservice(StdService):
         super(SNMPservice,self).__init__(engine, config_dict)
         loginf("SNMP service version %s" % VERSION)
         loginf("Using PySNMP version %s" % PYSNMPVERSION)
-        self.log_success = config_dict.get('log_success',True)
-        self.log_failure = config_dict.get('log_failure',True)
-        self.debug = weeutil.weeutil.to_int(config_dict.get('debug',0))
+        site_dict = weeutil.config.accumulateLeaves(config_dict.get('SNMP',config_dict))
+        self.log_success = weeutil.weeutil.to_bool(site_dict.get('log_success',True))
+        self.log_failure = weeutil.weeutil.to_bool(site_dict.get('log_failure',True))
+        self.debug = weeutil.weeutil.to_int(site_dict.get('debug',0))
         if self.debug>0:
             self.log_success = True
             self.log_failure = True
@@ -414,8 +415,9 @@ class SNMPservice(StdService):
         if 'SNMP' in config_dict:
             ct = 0
             for name in config_dict['SNMP'].sections:
-                if config_dict['SNMP'][name].get('enable',
-                        config_dict['SNMP'].get('enable',True)):
+                if weeutil.weeutil.to_bool(
+                        config_dict['SNMP'][name].get('enable',
+                        config_dict['SNMP'].get('enable',True))):
                     if self._create_thread(name,
                             config_dict['SNMP'][name]):
                         ct += 1
@@ -550,9 +552,10 @@ class SNMParchive(StdService):
     def __init__(self, engine, config_dict):
         super(SNMParchive,self).__init__(engine, config_dict)
         loginf("SNMP archive version %s" % VERSION)
-        self.log_success = config_dict.get('log_success',True)
-        self.log_failure = config_dict.get('log_failure',True)
-        self.debug = weeutil.weeutil.to_int(config_dict.get('debug',0))
+        site_dict = weeutil.config.accumulateLeaves(config_dict.get('SNMP',config_dict))
+        self.log_success = weeutil.weeutil.to_bool(site_dict.get('log_success',True))
+        self.log_failure = weeutil.weeutil.to_bool(site_dict.get('log_failure',True))
+        self.debug = weeutil.weeutil.to_int(site_dict.get('debug',0))
         if self.debug>0:
             self.log_success = True
             self.log_failure = True
