@@ -10,7 +10,7 @@ def loader():
 class SNMPInstaller(ExtensionInstaller):
     def __init__(self):
         super(SNMPInstaller, self).__init__(
-            version="0.1",
+            version="0.2a1",
             name='SNMP',
             description='fetch data by SNMP',
             author="Johanna Roedenbeck",
@@ -30,6 +30,6 @@ class SNMPInstaller(ExtensionInstaller):
                       'database_type':'SQLite'}},
               'SNMP':{
                   'data_binding':'snmp_binding'}
-              }
+              },
             files=[('bin/user', ['bin/user/snmp.py'])]
             )
