@@ -68,18 +68,19 @@ Each subsection contains of the following information:
 
 * `enable`: If True or omitted, retrieve data from that device.
   If False, that subsection is not used. (optional)
-* `log_success`: Log successful operation. 
-  If omitted, global options are used. (optional)
-* `log_failure`: Log unsuccessful operation. 
-  If omitted, global options are used. (optional)
+* `log_success`: If True, log successful operation. 
+  If omitted, global options apply. (optional)
+* `log_failure`: If True, log unsuccessful operation. 
+  If omitted, global options apply. (optional)
 
 ### Connection configuration
 
 * `host`: host name or IP address of the device to get data from
   (mandatory)
 * `port`: port number (mandatory, standard 161)
-* `timeout`: request timeout
-* `retries`: request retries (0 is no retries)
+* `timeout`: request timeout (optional, default is 0.5s)
+* `retries`: request retries (0 is no retries) (optional, default is
+   no retries)
 * `query_interval`: query interval (optional, default 5s)
 
 ### Authentication configuration
@@ -153,6 +154,15 @@ The observation types are automatically registered with WeeWX.
 
 The standardized OID for sensor readings is `iso.3.6.1.2.1.99.1.1.1.4`,
 followed by an index of the sensor, starting with `.1`.
+
+### Accumulators
+
+This extension tries to set up reasonable accumulators for the
+observation types defined in the `[[loop]]` subsubsection. If
+they do not work for you, you can set up accumulators manually
+in the `[Accumulator]` section of `weewx.conf`.
+See [WeeWX Accumulators wiki page](https://github.com/weewx/weewx/wiki/Accumulators)
+for how to set up accumulators in WeeWX.
 
 ### Example configuration
 
