@@ -157,6 +157,8 @@ followed by an index of the sensor, starting with `.1`.
 
 ### Accumulators
 
+Accumulators define how to aggregate the readings during the
+archive interval.
 This extension tries to set up reasonable accumulators for the
 observation types defined in the `[[loop]]` subsubsection. If
 they do not work for you, you can set up accumulators manually
