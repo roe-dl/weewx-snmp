@@ -166,6 +166,12 @@ in the `[Accumulator]` section of `weewx.conf`.
 See [WeeWX Accumulators wiki page](https://github.com/weewx/weewx/wiki/Accumulators)
 for how to set up accumulators in WeeWX.
 
+The accumulator `firstlast` does not work for numeric values of this
+extension. The reason is that the database schema within this extension
+includes all numeric values in the list of daily summeries tables. But
+WeeWX let you have an observation type either with a daily summeries
+table or the `firstlast` accumulator, not both.
+
 ### Example configuration
 
 ```
@@ -311,14 +317,6 @@ subsubsection is present.
 ## OIDs
 
 See [OIDs wiki page](https://github.com/roe-dl/weewx-snmp/wiki/OIDs)
-
-## Troubleshooting
-
-The accumulator `firstlast` does not work for numeric values of this
-extension. The reason is that the database schema within this extension
-includes all numeric values in the list of daily summeries tables. But
-WeeWX let you have an observation type either with a daily summeries
-table or the `firstlast` accumulator, not both.
 
 ## References
 
