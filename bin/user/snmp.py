@@ -19,7 +19,7 @@
 
 """
 
-VERSION = "0.2a1"
+VERSION = "0.2"
 
 """
     common units and unit groups:
@@ -459,7 +459,8 @@ class SNMPservice(StdService):
             if obstype:
                 if obsgroup:
                     weewx.units.obs_group_dict.setdefault(obstype,obsgroup)
-                    if (obsgroup in ('group_deltatime','group_time','group_count') and
+                    if (obsgroup in ('group_deltatime',
+                                     'group_time','group_count') and
                         obstype not in weewx.accum.accum_dict):
                         _accum[obstype] = ACCUM_LAST
                 if issqltexttype(obsdatatype):
