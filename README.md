@@ -123,12 +123,12 @@ Possible values for `encryption_protocol`:
 
 ### Variables configuration
 
-There are two possible subsubsections, `[[once]]` and `[[loop]]`,
+There are two possible subsubsections, `[[[once]]]` and `[[[loop]]]`,
 the former is used once at program start and logged to syslog, 
 the latter is performed continuously and included in the LOOP 
-packets. If no `[[once]]` subsubsection is present, defaults
+packets. If no `[[[once]]]` subsubsection is present, defaults
 are used, fetching some general device information. For the
-`[[loop]]` subsubsection, there are no defaults.
+`[[[loop]]]` subsubsection, there are no defaults.
 
 * `oid`: OID of the variable. If omitted, the section name is used 
   for OID.
@@ -160,7 +160,7 @@ followed by an index of the sensor, starting with `.1`.
 Accumulators define how to aggregate the readings during the
 archive interval.
 This extension tries to set up reasonable accumulators for the
-observation types defined in the `[[loop]]` subsubsection. If
+observation types defined in the `[[[loop]]]` subsubsection. If
 they do not work for you, you can set up accumulators manually
 in the `[Accumulator]` section of `weewx.conf`.
 See [WeeWX Accumulators wiki page](https://github.com/weewx/weewx/wiki/Accumulators)
@@ -281,9 +281,9 @@ table or the `firstlast` accumulator, not both.
                 group = 'group_percent'
 ```
 
-### Default `[once]` section
+### Default `[[[once]]]` section
 
-This is the default `[once]` subsubsection that applies if no `[once]`
+This is the default `[[[once]]]` subsubsection that applies if no `[[[once]]]`
 subsubsection is present. 
 
 ```
