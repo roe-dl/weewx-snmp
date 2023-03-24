@@ -330,7 +330,7 @@ class SNMPthread(threading.Thread):
                             val = varBind[1]
                             conf = self.conf_dict[ot][ii]
                             if tp in ('DisplayString','OctetString'):
-                                val = weewx.units.ValueTuple(val.prettyPrint(),None,None)
+                                val = weewx.units.ValueTuple(str(val),None,None)
                             elif tp in ('Integer','Integer32','Integer64'):
                                 val = int(val)
                                 if 'conversion' in conf and conf['conversion'] is not None:
@@ -352,7 +352,7 @@ class SNMPthread(threading.Thread):
                             if ot=='once':
                                 val = varBind[1].prettyPrint()
                                 if tp in ('DisplayString','OctetString'):
-                                    val = '"%s"' % val
+                                    val = '"%s"' % str(varBind[1])
                                 loginf("%s %s = %s : %s" % (self.name,
                                   varBind[0].prettyPrint(),
                                   tp,val))
