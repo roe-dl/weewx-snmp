@@ -2,3 +2,5 @@
 * initial release
 0.2 07dec2022
 * bug fixes
+0.3
+* better conversion of type OctetString

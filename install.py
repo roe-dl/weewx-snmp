@@ -10,7 +10,7 @@ def loader():
 class SNMPInstaller(ExtensionInstaller):
     def __init__(self):
         super(SNMPInstaller, self).__init__(
-            version="0.2",
+            version="0.3",
             name='SNMP',
             description='fetch data by SNMP',
             author="Johanna Roedenbeck",

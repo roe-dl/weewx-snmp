@@ -19,7 +19,7 @@
 
 """
 
-VERSION = "0.2"
+VERSION = "0.3"
 
 """
     common units and unit groups:
@@ -329,9 +329,14 @@ class SNMPthread(threading.Thread):
                         if oid==val[0].getOid():
                             val = varBind[1]
                             conf = self.conf_dict[ot][ii]
-                            if tp in ('DisplayString','OctetString'):
+                            if tp=='DisplayString':
+                                # text string
+                                val = weewx.units.ValueTuple(val.prettyPrint(),None,None)
+                            elif tp=='OctetString':
+                                # bytes string
                                 val = weewx.units.ValueTuple(str(val),None,None)
                             elif tp in ('Integer','Integer32','Integer64'):
+                                # integer value
                                 val = int(val)
                                 if 'conversion' in conf and conf['conversion'] is not None:
                                     val = conf['conversion'](val)
@@ -350,9 +355,25 @@ class SNMPthread(threading.Thread):
                             elif varBind[0]=='1.3.6.1.2.1.1.5.0':
                                 self.sysName = val
                             if ot=='once':
-                                val = varBind[1].prettyPrint()
-                                if tp in ('DisplayString','OctetString'):
-                                    val = '"%s"' % str(varBind[1])
+                                if tp=='OctetString':
+                                    # convert bytes to printable string
+                                    val = '"'
+                                    for x in varBind[1].asNumbers():
+                                        if x in (0,13):
+                                            # NUL, \r CR
+                                            continue
+                                        elif x==10:
+                                            # \n LF
+                                            val += ' '
+                                        elif x<32 or x==127:
+                                            val += '\\x%02X' % x
+                                        else:
+                                            val += chr(x)
+                                    val += '"'
+                                elif tp=='DisplayString':
+                                    val = '"%s"' % varBind[1].prettyPrint()
+                                else:
+                                    val = varBind[1].prettyPrint()
                                 loginf("%s %s = %s : %s" % (self.name,
                                   varBind[0].prettyPrint(),
                                   tp,val))
