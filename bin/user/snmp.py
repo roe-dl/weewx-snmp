@@ -358,20 +358,22 @@ class SNMPthread(threading.Thread):
                                 if tp=='OctetString':
                                     # convert bytes to printable string
                                     replcs = {
-                                        0:  '',    # NUL \0
-                                        8:  '',    # BS  \b backspace
-                                        9:  '  ',  # TAB \t tabulator
-                                        10: ' ',   # LF  \n line feed
-                                        13: '',    # CR  \r carriage return
-                                        34: '\\"', # "
-                                        92: '\\\\' # \      backslash
+                                        0:   '',     # NUL \0
+                                        8:   '',     # BS  \b backspace
+                                        9:   '  ',   # HT  \t tabulator
+                                        10:  ' ',    # LF  \n line feed
+                                        12:  ' ',    # FF  \f form feed
+                                        13:  '',     # CR  \r carriage return
+                                        34:  '\\"',  # "
+                                        92:  '\\\\', # \      backslash
+                                        127: '\\x7F' # DEL
                                     }
                                     val = '"'
                                     for x in varBind[1].asNumbers():
                                         if x in replcs:
                                             # common control characters
                                             val += replcs[x]
-                                        elif x<32 or x==127:
+                                        elif x<32:
                                             # other control charachters
                                             val += '\\x%02X' % x
                                         else:
