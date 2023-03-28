@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # SNMP Service for WeeWX
-# Copyright (C) 2022 Johanna Roedenbeck
+# Copyright (C) 2022, 2023 Johanna Roedenbeck
 
 """
 

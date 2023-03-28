@@ -1,5 +1,5 @@
 # installer SNMP
-# Copyright 2022 Johanna Roedenbeck
+# Copyright 2022, 2023 Johanna Roedenbeck
 # Distributed under the terms of the GNU Public License (GPLv3)
 
 from weecfg.extension import ExtensionInstaller
