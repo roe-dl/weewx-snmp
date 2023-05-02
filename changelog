@@ -4,3 +4,5 @@
 * bug fixes
 0.3 28mar2023
 * better conversion of type OctetString
+0.4
+* fix shutDown() function

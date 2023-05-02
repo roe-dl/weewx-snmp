@@ -72,6 +72,8 @@ Each subsection contains of the following information:
   If omitted, global options apply. (optional)
 * `log_failure`: If True, log unsuccessful operation. 
   If omitted, global options apply. (optional)
+* `data_binding`: data binding to use for storage 
+  (or `None` if no extra data binding is to be used)
 
 ### Connection configuration
 

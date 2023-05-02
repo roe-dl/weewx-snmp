@@ -19,7 +19,7 @@
 
 """
 
-VERSION = "0.3"
+VERSION = "0.4"
 
 """
     common units and unit groups:
@@ -511,7 +511,29 @@ class SNMPservice(StdService):
         for ii in self.threads:
             try:
                 self.threads[ii]['thread'].shutDown()
-            except Exception:
+            except:
+                pass
+        # wait at max 10 seconds for shutdown to complete
+        timeout = time.time()+10
+        for ii in self.threads:
+            try:
+                w = timeout-time.time()
+                if w<=0: break
+                self.threads[ii]['thread'].join(w)
+                if self.threads[ii]['thread'].is_alive():
+                    logerr("unable to shutdown thread '%s'" % self.threads[ii]['thread'].name)
+            except:
+                pass
+        # report threads that are still alive
+        _threads = [ii for ii in self.threads]
+        for ii in _threads:
+            try:
+                if self.threads[ii]['thread'].is_alive():
+                    logerr("unable to shutdown thread '%s'" % self.threads[ii]['thread'].name)
+                del self.threads[ii]['thread']
+                del self.threads[ii]['queue']
+                del self.threads[ii]
+            except:
                 pass
         
     def _process_data(self, thread_name):
