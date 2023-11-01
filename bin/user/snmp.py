@@ -46,6 +46,7 @@ import threading
 import configobj
 import time
 import copy
+import traceback
 
 # deal with differences between python 2 and python 3
 try:
@@ -422,7 +423,10 @@ class SNMPthread(threading.Thread):
                 self.getRecord('loop')
                 time.sleep(self.query_interval)
         except Exception as e:
-            logerr("thread '%s': %s" % (self.name,e))
+            logerr("thread '%s': %s %s" % (self.name,e.__class__.__name__,e))
+            for ii in traceback.format_tb(e.__traceback__):
+                for jj in ii.splitlines():
+                    logerr("thread '%s': *** %s" % (self.name,jj.replace('\n',' ').strip()))
         finally:
             loginf("thread '%s' stopped" % self.name)
 
