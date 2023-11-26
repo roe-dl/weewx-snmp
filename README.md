@@ -13,6 +13,13 @@ Install PySNMP if it is not already there.
 sudo apt-get install python3-pysnmp
 ```
 
+In newer releases of Ubuntu you have to enter:
+
+```
+sudo apt-get install python3-pysnmp4
+```
+
+
 ## Installation instructions
 
 1) download
@@ -23,8 +30,16 @@ sudo apt-get install python3-pysnmp
 
 2) run the installer
 
+   WeeWX up to version 4.X
+
    ```
    sudo wee_extension --install weewx-snmp.zip
+   ```
+
+   WeeWX from version 5.0 on
+
+   ```
+   sudo weectl extension install weewx-snmp.zip
    ```
 
 3) edit configuration in weewx.conf
@@ -40,13 +55,23 @@ sudo apt-get install python3-pysnmp
 
    If you want to add additional variables afterwards you have to 
    extend the database schema manually by using the
-   `wee_database` utility. This is **not** done automatically.
+   `wee_database` utility (`weectl database` in WeeWX 5).
+   This is **not** done automatically.
 
 5) restart weewx
+
+   for SysVinit systems:
 
    ```
    sudo /etc/init.d/weewx stop
    sudo /etc/init.d/weewx start
+   ```
+
+   for systemd systems:
+
+   ```
+   sudo systemctl stop weewx
+   sudo systemctl start weewx
    ```
 
 ## Configuration

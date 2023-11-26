@@ -7,3 +7,4 @@
 0.4
 * fix shutDown() function
 * enhance error logging
+* update docu for WeeWX5 and PySNMP4
