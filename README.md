@@ -36,12 +36,19 @@ sudo apt-get install python3-pysnmp4
    sudo wee_extension --install weewx-snmp.zip
    ```
 
-   WeeWX from version 5.0 on
+   WeeWX from version 5.0 on and WeeWX packet installation
 
    ```
    sudo weectl extension install weewx-snmp.zip
    ```
 
+   WeeWX from version 5.0 on and WeeWX pip installation into an virtual environment
+
+   ```shell
+   source ~/weewx-venv/bin/activate
+   weectl extension install weewx-svg2png.zip
+   ```
+   
 3) edit configuration in weewx.conf
 
    Before using this extension you have to set up which devices
@@ -99,6 +106,11 @@ Each subsection contains of the following information:
   If omitted, global options apply. (optional)
 * `data_binding`: data binding to use for storage 
   (or `None` if no extra data binding is to be used)
+* `include`: include configuration data from the file indicated by this
+  option into the `[SNMP]` section. Use absolute path. This is to
+  increase readability of the configuration only. It is up to you to
+  decide wether to put the configuration data directly into `weewx.conf` 
+  or into the include file.
 
 ### Connection configuration
 
