@@ -46,7 +46,7 @@ sudo apt-get install python3-pysnmp4
 
    ```shell
    source ~/weewx-venv/bin/activate
-   weectl extension install weewx-svg2png.zip
+   weectl extension install weewx-snmp.zip
    ```
    
 3) edit configuration in weewx.conf
